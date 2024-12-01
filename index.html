@@ -1,149 +1,94 @@
 <!DOCTYPE html>
 <html lang="ku" dir="rtl">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>قەرزی مووچە</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap">
-    <!-- Add Font Awesome library link -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* Styles remain unchanged */
         body {
             font-family: 'Noto Naskh Arabic', sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
         }
-
-        label,
-        input,
-        button,
-        th,
-        td,
-        p {
-            font-family: 'Noto Naskh Arabic', sans-serif;
-        }
-
-        label,
-        input,
-        button {
-            margin-bottom: 10px;
-        }
-
-        input,
-        button {
-            padding: 8px;
-            font-size: 16px;
-        }
-
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: center;
-        }
-
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        p {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        #totalNet {
-            color: #4CAF50;
-        }
-
-        /* Add style for tooltip */
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            cursor: pointer;
-        }
-
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 160px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -80px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
+        .rtl-container {
+            direction: rtl;
+            text-align: right;
         }
     </style>
 </head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white shadow-lg rounded-lg p-6 rtl-container">
+        <h1 class="text-2xl font-bold mb-6 text-center text-green-600">ئەژمێرکردنی قەرزی مووچە</h1>
+        
+        <div class="mb-4">
+            <label for="inputX" class="block mb-2 text-sm font-medium text-gray-700">مووچەکەت بنووسە</label>
+            <input 
+                type="text" 
+                id="inputX" 
+                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                oninput="formatInputValue(this)"
+            >
+        </div>
 
-<body>
-    <label for="inputX">مووچەکەت بنووسە</label>
-    <input type="text" id="inputX" oninput="formatInputValue(this)">
+        <button 
+            onclick="generateTable()" 
+            class="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition duration-300"
+        >
+            ئەژمێرکردن
+        </button>
 
-    <button onclick="generateTable()">ئەژمێرکردن</button>
+        <div class="overflow-x-auto mt-6">
+            <table id="resultTable" class="w-full border-collapse">
+                <!-- Table content will be generated here -->
+            </table>
+        </div>
 
-    <table id="resultTable">
-        <!-- Table content will be generated here -->
-    </table>
+        <p class="mt-4 text-center font-bold text-lg">
+            کۆی گشتی قەرز : 
+            <span id="totalNet" class="text-green-600"></span>
+        </p>
+    </div>
 
-    <p>کۆی گشتی قەرز : <span id="totalNet"></span></p>
     <script>
         function formatInputValue(inputElement) {
-            let inputValue = inputElement.value.replace(/\D/g, ''); // Remove non-numeric characters
-            let formattedValue = new Intl.NumberFormat('ku-IQ').format(inputValue); // Format number
-            inputElement.value = formattedValue + ' دینار'; // Add "دینار" at the end
+            let inputValue = inputElement.value.replace(/\D/g, '');
+            let formattedValue = new Intl.NumberFormat('ku-IQ').format(inputValue);
+            inputElement.value = formattedValue + ' دینار';
         }
 
         function generateTable() {
-            let x = parseInt(document.getElementById("inputX").value.replace(/\D/g, ''));
+            let inputValue = document.getElementById("inputX").value.replace(/\D/g, '');
+            let x = parseInt(inputValue);
+
+            if (isNaN(x) || x <= 0) {
+                Swal2.fire({
+                    icon: 'error',
+                    title: 'هەڵە',
+                    text: 'تکایە ژمارەیەکی دروست بنووسە'
+                });
+                return;
+            }
 
             let percentages = [100, 75, 40, 21, 18];
-            let months = [15, 23, 11, 9, 1];
+            let months = [18, 23, 11, 9, 1];
 
             let additionalRow = {
                 description: "ڕاگرتنی ٢ بەرزە مووچە",
-                numberOfMonths: 96,
+                numberOfMonths: 120,
                 net: 100000
             };
 
-            let table = "<tr><th>ڕێژەی پاشەکەوت</th><th>ژمارەی مانگ</th><th>کۆ</th></tr>";
+            let tableHtml = `
+                <thead>
+                    <tr class="bg-green-500 text-white">
+                        <th class="p-2 border">ڕێژەی پاشەکەوت</th>
+                        <th class="p-2 border">ژمارەی مانگ</th>
+                        <th class="p-2 border">کۆ</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
 
             let totalNet = 0;
             let totalColumn = 0;
@@ -156,18 +101,45 @@
                 let totalForRow = numberOfMonths * net;
                 totalColumn += totalForRow;
 
-                let tooltipHtml = (i === percentages.length - 1 && i !== 4) ? `<span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltiptext" title="ئەگەر ٨٢٢ ساڵ بێت فەرمانبەر بیت">ئەگەر ٨١٠ ساڵ بێت فەرمانبەر بیت</span></span>` : '';
-                table += `<tr><td>${percentages[i]}%</td><td>${numberOfMonths}</td><td>${new Intl.NumberFormat('ku-IQ').format(totalForRow)} دینار ${tooltipHtml}</td></tr>`;
+                let tooltipHtml = (i === percentages.length - 1 && i !== 4) 
+                    ? `<span class="ml-1 text-blue-500 cursor-help" title="ئەگەر ٨٢٢ ساڵ بێت فەرمانبەر بیت">ⓘ</span>` 
+                    : '';
+
+                tableHtml += `
+                    <tr class="hover:bg-gray-100">
+                        <td class="p-2 border text-center">${percentages[i]}%</td>
+                        <td class="p-2 border text-center">${numberOfMonths}</td>
+                        <td class="p-2 border text-center">
+                            ${new Intl.NumberFormat('ku-IQ').format(totalForRow)} دینار ${tooltipHtml}
+                        </td>
+                    </tr>
+                `;
             }
 
-            let tooltipHtml = `<span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltiptext" title="ئەگەر ٩ ساڵ بێت فەرمانبەر بیت">ئەم ئەژمێرکارییە ئەو کەسانە دەگرێتەوە کە ٨ ساڵ زیاترە مووچەخۆرن و پلەبەرزکردنەوەیان بۆ نەکراوە.</span></span>`;
-            table += `<tr><td>${additionalRow.description} ${tooltipHtml}</td><td>${additionalRow.numberOfMonths}</td><td>${new Intl.NumberFormat('ku-IQ').format(additionalRow.numberOfMonths * additionalRow.net)} دینار</td></tr>`;
+            let additionalRowTooltip = `
+                <span class="ml-1 text-blue-500 cursor-help" 
+                    title="ئەم ئەژمێرکارییە ئەو کەسانە دەگرێتەوە کە ٨ ساڵ زیاترە مووچەخۆرن و پلەبەرزکردنەوەیان بۆ نەکراوە.">
+                    ⓘ
+                </span>
+            `;
 
-            document.getElementById("resultTable").innerHTML = table;
+            tableHtml += `
+                <tr class="bg-gray-100">
+                    <td class="p-2 border text-center">${additionalRow.description} ${additionalRowTooltip}</td>
+                    <td class="p-2 border text-center">${additionalRow.numberOfMonths}</td>
+                    <td class="p-2 border text-center">
+                        ${new Intl.NumberFormat('ku-IQ').format(additionalRow.numberOfMonths * additionalRow.net)} دینار
+                    </td>
+                </tr>
+                </tbody>
+            `;
 
-            document.getElementById("totalNet").innerText = new Intl.NumberFormat('ku-IQ').format(totalColumn + (additionalRow.numberOfMonths * additionalRow.net)) + " دینار";
+            document.getElementById("resultTable").innerHTML = tableHtml;
+
+            let totalAmount = totalColumn + (additionalRow.numberOfMonths * additionalRow.net);
+            document.getElementById("totalNet").innerText = 
+                new Intl.NumberFormat('ku-IQ').format(totalAmount) + " دینار";
         }
     </script>
 </body>
-
 </html>
